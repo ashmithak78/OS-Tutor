@@ -1,6 +1,6 @@
 # OS-Tutor — AI Teaching Assistant for Operating Systems
 
-**OS-Tutor** combines **Retrieval-Augmented Generation (RAG)** with **QLoRA Parameter-Efficient Fine-Tuning (PEFT)** to create an AI Teaching Assistant that answers Operating Systems questions grounded strictly in course notes (OSTEP), provides precise citations (`[file, page]`), and mimics a professor's signature pedagogical style:
+**OS-Tutor** combines **Retrieval-Augmented Generation (RAG)** with **QLoRA Parameter-Efficient Fine-Tuning (PEFT)** to create an AI Teaching Assistant that answers Operating Systems questions grounded strictly in course notes , provides precise citations (`[file, page]`):
 > **Definition** ➔ **Explanation** ➔ **Real-World / Code Example** ➔ **High-Yield Exam Tip**
 
 ---
