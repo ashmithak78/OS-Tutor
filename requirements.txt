@@ -1,0 +1,10 @@
+pypdf
+sentence-transformers
+chromadb
+ollama
+fastapi
+uvicorn
+peft
+trl
+accelerate
+datasets

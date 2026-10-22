@@ -1,0 +1,52 @@
+[
+  {
+    "instruction": "What is the difference between preemptive and non-preemptive scheduling?",
+    "input": "",
+    "output": "Preemptive scheduling allows the OS to interrupt an actively running process and move it to the ready queue before it finishes its CPU burst. Non-preemptive scheduling allows a process to hold the CPU until it explicitly yields, blocks on I/O, or terminates. Example: Round Robin and STCF are preemptive; FIFO and standard SJF are non-preemptive. Exam tip: preemptive scheduling requires hardware timer interrupt support."
+  },
+  {
+    "instruction": "What is the difference between a monolithic kernel and a microkernel?",
+    "input": "",
+    "output": "A monolithic kernel runs all OS services (file systems, device drivers, networking, scheduler) in supervisor/kernel mode inside a single address space. A microkernel keeps only minimal core mechanisms (IPC, basic scheduling, virtual memory) in kernel mode, running file systems and device drivers as user-space servers. Example: Linux is monolithic; seL4 and QNX are microkernels. Exam tip: monolithic kernels offer higher performance due to direct function calls; microkernels offer better isolation and crash resilience."
+  },
+  {
+    "instruction": "How does the scheduler incorporate I/O operations into CPU scheduling?",
+    "input": "",
+    "output": "When a process initiates an I/O request (such as reading from disk or network), it does not use the CPU during the I/O wait. The scheduler moves it from the Running state to the Blocked state and schedules another ready process on the CPU. When the I/O finishes, an interrupt moves the I/O process back to Ready, effectively breaking long tasks into smaller sub-bursts of CPU computation interleaved with I/O. Example: treating a 50ms process with 10ms I/O intervals as five 10ms CPU bursts. Exam tip: overlapping CPU execution and I/O wait is essential for maximum hardware utilization."
+  },
+  {
+    "instruction": "What is Shortest Time-to-Completion First (STCF) scheduling?",
+    "input": "",
+    "output": "STCF (also known as Preemptive Shortest Job First or PSJF) adds preemption to SJF. Whenever a new job arrives in the ready queue, the scheduler compares the remaining execution time of the currently running job against the new job's total run time; if the new job requires less time to complete, the current job is preempted and the new job is scheduled immediately. Example: Job A has 90s left when Job B arrives needing only 10s; STCF preempts A and runs B. Exam tip: STCF achieves provably optimal average turnaround time for independent jobs."
+  },
+  {
+    "instruction": "What occurs when a user program accesses memory outside its allocated address space?\nA) The CPU switches to cooperative mode\nB) The hardware generates a segmentation fault exception\nC) The program is placed in the Blocked state\nD) The scheduler reduces its priority",
+    "input": "",
+    "output": "Correct Answer: B) The hardware generates a segmentation fault exception. Explanation: The MMU detects an invalid memory access and triggers a page fault or segmentation fault exception, causing the kernel to send SIGSEGV.. Exam tip: Memory protection violations result in hardware traps, not soft errors."
+  },
+  {
+    "instruction": "What is copy-on-write (COW) paging and when is it used?",
+    "input": "",
+    "output": "Copy-on-write is a memory optimization where multiple processes share the same physical pages marked read-only, duplicating a page only when one process attempts to modify it. When a write instruction executes on a shared page, the MMU raises a protection fault. The OS allocates a new physical frame, copies the page contents, updates the writing process's page table with write permission, and resumes execution. Example: In UNIX fork(), the child initially shares all memory pages with the parent; if the child immediately executes exec(), no memory pages are ever duplicated.. Exam tip: COW saves substantial memory and CPU cycles during process creation in UNIX."
+  },
+  {
+    "instruction": "Explain time-sharing versus space-sharing in operating systems.",
+    "input": "",
+    "output": "Time-sharing is a resource multiplexing technique where different entities use the entire resource sequentially for short intervals of time. Space-sharing is where a resource is divided into distinct portions and allocated simultaneously to multiple entities. Example: CPU cores are time-shared among processes, whereas physical RAM and disk blocks are space-shared. Exam tip: remember that CPU scheduling is primarily time-sharing, while memory paging is space-sharing."
+  },
+  {
+    "instruction": "What happens during a TLB shootdown?",
+    "input": "",
+    "output": "Direct Answer: A TLB shootdown is a synchronization mechanism in multi-core systems where one core requests all other cores to flush invalid Translation Lookaside Buffer entries after modifying page tables. Technical Detail: It is coordinated via inter-processor interrupts (IPIs) and introduces multi-core overhead. Exam tip: TLB shootdowns represent a major scalability challenge on large multi-core processors."
+  },
+  {
+    "instruction": "What is a context switch latency and what factors affect it?",
+    "input": "",
+    "output": "Context switch latency is the time required to switch execution from one process to another. Factors affecting it include CPU architecture, register file size, OS kernel efficiency, memory bus speed, and the size of cache and TLB invalidations. Example: context switches typically take between 1 and 10 microseconds on modern x86 hardware. Exam tip: excessive context switching leads to thrashing and CPU wasted in non-productive work."
+  },
+  {
+    "instruction": "What is the difference between user mode and kernel mode?",
+    "input": "",
+    "output": "User mode is a restricted processor privilege level where user applications run; direct access to hardware, I/O devices, and arbitrary physical memory addresses is prohibited. Kernel mode (or supervisor mode) is an unrestricted privilege level where the OS runs with complete access to all physical instructions, memory, and devices. Example: trying to execute an 'in/out' assembly instruction in user mode triggers a general protection fault. Exam tip: switching between user and kernel mode requires hardware trap/interrupt support."
+  }
+]

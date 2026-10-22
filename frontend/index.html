@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OS-Tutor — AI Teaching Assistant for Operating Systems</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --bubble-user: #2563eb;
+      --bubble-bot: #1e293b;
+      --border-color: #475569;
+      --badge-bg: #0369a1;
+      --citation-bg: #1e1b4b;
+      --citation-border: #6366f1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 28px;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .brand-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.1);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid rgba(74, 222, 128, 0.3);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #4ade80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    /* Mode Selector Bar */
+    .controls-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .mode-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    .mode-pill {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-pill:hover {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .mode-pill.active {
+      background-color: var(--accent);
+      color: #0f172a;
+      font-weight: 600;
+      border-color: var(--accent);
+    }
+
+    /* Chat Messages Container */
+    #chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    #chat-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #chat-container::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    /* Message Bubbles */
+    .message-row {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-row.user {
+      align-items: flex-end;
+    }
+
+    .message-row.bot {
+      align-items: flex-start;
+    }
+
+    .message-bubble {
+      max-width: 82%;
+      padding: 12px 18px;
+      border-radius: 14px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+    }
+
+    .message-row.user .message-bubble {
+      background-color: var(--bubble-user);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message-row.bot .message-bubble {
+      background-color: var(--bubble-bot);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-bottom-left-radius: 4px;
+    }
+
+    .bot-mode-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--badge-bg);
+      color: #e0f2fe;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    /* Citations Card */
+    .citation-card {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: var(--citation-bg);
+      border: 1px solid var(--citation-border);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #c7d2fe;
+      max-width: 82%;
+    }
+
+    .citation-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .citation-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .citation-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .not-found-banner {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+    }
+
+    /* Topic Suggestions */
+    .suggestions-container {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 8px 0;
+      margin-bottom: 8px;
+    }
+
+    .suggestion-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .suggestion-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Input Form */
+    form#chat-form {
+      display: flex;
+      gap: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    input#query-input {
+      flex: 1;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input#query-input:focus {
+      border-color: var(--accent);
+    }
+
+    button#send-btn {
+      background-color: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background-color 0.2s;
+    }
+
+    button#send-btn:hover {
+      background-color: var(--accent-hover);
+    }
+
+    button#send-btn:disabled {
+      background-color: var(--border-color);
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span class="brand-icon">⚡</span>
+      <div>
+        <div class="brand-title">OS-Tutor</div>
+        <div class="brand-subtitle">AI Teaching Assistant for Operating Systems (RAG + QLoRA)</div>
+      </div>
+    </div>
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      <span>Knowledge Base: Online (notes.pdf)</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Mode Pills -->
+    <div class="controls-bar">
+      <span class="mode-label">Mode:</span>
+      <button class="mode-pill active" data-mode="auto">✨ Auto Detect</button>
+      <button class="mode-pill" data-mode="explain">🎓 Explain</button>
+      <button class="mode-pill" data-mode="mcq">📝 MCQ Quiz</button>
+      <button class="mode-pill" data-mode="viva">🎯 Viva Prep</button>
+      <button class="mode-pill" data-mode="lab">💻 Lab Task</button>
+    </div>
+
+    <!-- Suggested Quick Prompts -->
+    <div class="suggestions-container">
+      <button class="suggestion-btn" onclick="sendSuggestion('What is a process?')">What is a process?</button>
+      <button class="suggestion-btn" onclick="sendSuggestion('List the three process states and their transitions.')">Three Process States</button>
+      <button class="suggestion-btn" onclick="sendSuggestion('Generate an MCQ on process states')">Quiz: Process States (MCQ)</button>
+      <button class="suggestion-btn" onclick="sendSuggestion('Ask me a viva question about context switching')">Viva: Context Switching</button>
+      <button class="suggestion-btn" onclick="sendSuggestion('What is the convoy effect in CPU scheduling?')">Convoy Effect</button>
+      <button class="suggestion-btn" onclick="sendSuggestion('How to bake chocolate chip cookies?')">Out-of-Scope Test</button>
+    </div>
+
+    <!-- Chat Messages -->
+    <div id="chat-container">
+      <div class="message-row bot">
+        <div class="message-bubble">
+          👋 Hello! I am <strong>OS-Tutor</strong>, your AI Teaching Assistant for Operating Systems.
+          <br><br>
+          I am powered by course notes (OSTEP) and trained to answer with strict textbook citations and pedagogical rigor (Definition → Explanation → Example → Exam Tip).
+          <br><br>
+          Feel free to ask a conceptual question, request a practice MCQ, prepare for viva, or try a hands-on lab exercise!
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Form -->
+    <form id="chat-form">
+      <input 
+        type="text" 
+        id="query-input" 
+        placeholder="Ask any Operating Systems question..." 
+        autocomplete="off"
+        required
+      />
+      <button type="submit" id="send-btn">Ask Tutor</button>
+    </form>
+  </main>
+
+  <script>
+    let currentMode = "auto";
+    const chatContainer = document.getElementById("chat-container");
+    const chatForm = document.getElementById("chat-form");
+    const queryInput = document.getElementById("query-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    // Mode Selector Handler
+    document.querySelectorAll(".mode-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        document.querySelectorAll(".mode-pill").forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        currentMode = pill.getAttribute("data-mode");
+      });
+    });
+
+    function sendSuggestion(text) {
+      queryInput.value = text;
+      chatForm.dispatchEvent(new Event("submit"));
+    }
+
+    function appendMessage(text, sender, mode = null, citations = [], found = true) {
+      const row = document.createElement("div");
+      row.className = `message-row ${sender}`;
+
+      const bubble = document.createElement("div");
+      bubble.className = "message-bubble";
+
+      if (sender === "bot" && mode) {
+        const modeTag = document.createElement("span");
+        modeTag.className = "bot-mode-tag";
+        modeTag.textContent = mode;
+        bubble.appendChild(modeTag);
+        bubble.appendChild(document.createElement("br"));
+      }
+
+      const textNode = document.createElement("div");
+      textNode.textContent = text;
+      bubble.appendChild(textNode);
+      row.appendChild(bubble);
+
+      // Append Citation Card if citations exist
+      if (sender === "bot" && citations && citations.length > 0 && found) {
+        const citCard = document.createElement("div");
+        citCard.className = "citation-card";
+        
+        let citHtml = `<div class="citation-title">📚 Course Note Citations:</div><ul class="citation-list">`;
+        citations.forEach(c => {
+          const relevance = Math.max(0, Math.round((2.0 - c.distance) / 2.0 * 100));
+          citHtml += `<li class="citation-item">📄 <strong>${c.file}</strong>, Page ${c.page} <span style="opacity:0.75">(Match: ${relevance}%)</span></li>`;
+        });
+        citHtml += `</ul>`;
+        citCard.innerHTML = citHtml;
+        row.appendChild(citCard);
+      }
+
+      chatContainer.appendChild(row);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Submit Handler
+    chatForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const question = queryInput.value.trim();
+      if (!question) return;
+
+      appendMessage(question, "user");
+      queryInput.value = "";
+      sendBtn.disabled = true;
+      sendBtn.textContent = "Thinking...";
+
+      // Typing indicator
+      const typingRow = document.createElement("div");
+      typingRow.className = "message-row bot";
+      typingRow.id = "typing-indicator";
+      typingRow.innerHTML = `<div class="message-bubble" style="opacity: 0.7;">🔍 Retrieving notes and reasoning...</div>`;
+      chatContainer.appendChild(typingRow);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      try {
+        const response = await fetch("/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question: question,
+            mode: currentMode,
+            use_ollama: true
+          })
+        });
+
+        const data = await response.json();
+        const indicator = document.getElementById("typing-indicator");
+        if (indicator) indicator.remove();
+
+        appendMessage(data.answer, "bot", data.mode, data.citations, data.found);
+      } catch (err) {
+        const indicator = document.getElementById("typing-indicator");
+        if (indicator) indicator.remove();
+        appendMessage("Error communicating with OS-Tutor backend. Make sure the server is running on port 8000.", "bot");
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = "Ask Tutor";
+        queryInput.focus();
+      }
+    });
+  </script>
+</body>
+</html>

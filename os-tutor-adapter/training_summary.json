@@ -1,0 +1,9 @@
+{
+  "base_model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "epochs": 3,
+  "learning_rate": 0.0003,
+  "train_loss": 11.457003021240235,
+  "train_samples": 81
+}
